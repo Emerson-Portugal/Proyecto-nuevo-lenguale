@@ -1,4 +1,3 @@
 def (x){
     return x;
 }
-int x = num addition num

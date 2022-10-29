@@ -51,9 +51,11 @@ def update_stack(stack, token_type):
 
     if(elementos[0] in arbol.source):
         aux = arbol.source[arbol.source.rfind(elementos[0])]
-        i = 1
+        i = 0
         while(True):
-            if(arbol.source[arbol.source.rfind(elementos[0])+i] == '"'):
+            print(arbol.source.rfind(elementos[0])+i)
+            print(len(arbol.source))
+            if(arbol.source[arbol.source.rfind(elementos[0])+i] ==' '):
                     break
             else:
                 aux = aux + arbol.source[arbol.source.rfind(elementos[0])+i]
@@ -65,7 +67,9 @@ def update_stack(stack, token_type):
     elementos.pop(0)
     elementos.pop(0)
 # eliminar de la pila
-    stack.pop(0)
+    father =  stack.pop(0)
+    # IMPLEMENTA UNA FUNCION QUE ME RETORNE UNA INSTACIA A NODE PARSE A PARTIR DE FATHER.ID
+    ## SERA LA VARIABLE NODE_FATHER
 
 ## Si hay un espacio se ignora pero ese valor debe consederarse en el grafico
     if elementos[0] == "''":  # nulo
@@ -85,8 +89,9 @@ def update_stack(stack, token_type):
     for i in range(len(elementos)-1, -1, -1):
         symbol = node_stack(elementos[i], not elementos[i].isupper())
         stack.insert(0, symbol)
-   # print_stack()
-
+        # node_father -> BUSCAR 
+        node_primario = node_parser(symbol,None,[],node_father,None)
+        node_father.children.append(node_primario)    
 ## se va a generar los nodos y sus relaciones
 
     for f in range(len(elementos)):
@@ -122,9 +127,13 @@ class node_parser:
 #  Entrada para el Stark
 stack = [ ]
 symbol_1 = node_stack('$', True)
-symbol_2 = node_stack('EXP', False)
+symbol_2 = node_stack('PROGRAM', False)
 stack.insert(0, symbol_1)
 stack.insert(0, symbol_2)
+## Creaer el node -> raiz -> symbol_2
+raiz = node_parser(symbol_2)
+
+
 
 #  Entrada para el Input -> se modifica
 
@@ -132,6 +141,7 @@ tokens = [
                 {'type':'id','lexema':'id', 'line': '1' },
                 {'type':'equal','lexema':'equal', 'line': '1' },
                 {'type':'true','lexema':'id', 'line': '1' },
+                {'type':'dotcomma','lexema':'dotcomma', 'line': '1' },
                 {'type':'$','lexema':'$', 'line': '1' }
                 ]
 # Empezamos las condicionales

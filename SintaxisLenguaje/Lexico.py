@@ -48,25 +48,11 @@ t_comma = r'\,'
 
 # A regular expression rule with some action code
 
-def t_NUM(t):
+def t_num(t):
     r'\d+'
     t.value = int(t.value)  # guardamos el valor del lexema  
     #print("se reconocio el numero")
     return t
-def t_CADENA(t):
-  r'\"([a-zA-Z0-9" "".""_""-"]+)"'
-  t.type = reserved.get(t.value, 'CADENA')
-  return t
-
-def t_COMENTARIO_UNO(t):
-  r'\#([a-zA-Z0-9" "]+)'
-  t.type = reserved.get(t.value, 'COMENTARIO_UNO')
-  return t
-
-def t_COMENTARIO_DOS(t):
-  r'\@([a-zA-Z0-9" ""\n"]+)@'
-  t.type = reserved.get(t.value, 'COMENTARIO_DOS')
-  return t
 
 def t_id(t):
   r'[a-zA-Z]+([a-zA-Z0-9]*)'
@@ -98,19 +84,20 @@ fp.close()
 
 # Give the lexer some input
 lexer.input(data)
-l_tok=[]
-toktok=[]
+#Guarda la informacion 
+
+guardar_token=[]
 
 while True:
-	uni_tok=[]
-	tok = lexer.token()
-	if not tok : break
-	print (tok)
-	uni_tok.append(tok.type)
-	uni_tok.append(tok.value)
-	toktok.append(tok.value)
-	l_tok.append(uni_tok)
-print(l_tok)
+    tok = lexer.token()
+    if not tok:
+        break      # No more input
+    #print(tok)
+    print(tok.type, tok.value, tok.lineno, tok.lexpos)
+    guardar_token.append({'type': tok.type.lower(), 'lexeme':str(tok.value).lower(), 'line': tok.lineno})
+
+guardar_token.append({'type':'$', 'lexeme':'$', 'line': guardar_token[-1]['line']})
+print(guardar_token)
 
 
 
