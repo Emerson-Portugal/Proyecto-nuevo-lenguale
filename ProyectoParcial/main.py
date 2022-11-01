@@ -1,121 +1,283 @@
 import pandas as pd
-# salida 
+# salida
 import sys
 # Graficador
 import graphviz
 
+import ply.lex as lex
+
+
+reserved = {
+  'true' : 'true',
+  'false' : 'false',
+  'if' : 'if',
+  'return' : 'return',
+  'int' : 'int',
+  'bool' : 'bool',
+  'def': 'def'
+}
+tokens = [
+	'id',
+	'num',
+	'addition', 
+	'subtract', 
+	'multiplication', 
+	'division', 
+	'equal',
+	'mayor',
+	'minor',
+	'lparem',
+	'rparem',
+  'ini_llave',
+	'fin_llave',
+	'dotcomma',
+	'comma'
+]+ list(reserved.values())
+
+# Regular expression rules for simple tokens
+t_addition = r'\+'
+t_subtract = r'\-'
+t_multiplication = r'\*'
+t_division = r'\/'
+t_equal = r'\='
+t_mayor = r'\>'
+t_minor = r'\<'
+t_lparem = r'\('
+t_rparem = r'\)'
+t_ini_llave = r'\{'
+t_fin_llave = r'\}'
+t_dotcomma = r'\;'
+t_comma = r'\,'
+
+
+
+
+# A regular expression rule with some action code
+
+def t_num(t):
+    r'\d+'
+    t.value = int(t.value)  # guardamos el valor del lexema  
+    #print("se reconocio el numero")
+    return t
+
+def t_id(t):
+  r'[a-zA-Z]+([a-zA-Z0-9]*)'
+  t.type = reserved.get(t.value, 'id')
+  return t
+  
+ # Define a rule so we can track line numbers
+def t_nuevalinea(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+ 
+ # A string containing ignored characters (tabs)
+t_ignore  = ' \t'
+ 
+ # Error handling rule
+def t_error(t):
+    print("Caracter Ilegal '%s'" % t.value[0])
+    t.lexer.skip(1)
+
+# Build the lexer
+lexer = lex.lex()
+
+# Traenis la informacion de un txt
+fp = open("ProyectoParcial\practica.txt")
+data = fp.read()
+print(data)
+fp.close()
+
+
+# Give the lexer some input
+lexer.input(data)
+#Guarda la informacion 
+
+guardar_token=[]
+
+while True:
+    tok = lexer.token()
+    if not tok:
+        break      # No more input
+    #print(tok)
+    print(tok.type, tok.value, tok.lineno, tok.lexpos)
+    guardar_token.append({'type': tok.type.lower(), 'lexeme':str(tok.value).lower(), 'line': tok.lineno})
+
+guardar_token.append({'type':'$', 'lexeme':'$', 'line': guardar_token[-1]['line']})
+print(guardar_token)
+
+
+
+
+
+
+
+
 counter = 0
+cont = 0
+dot = graphviz.Digraph('round-table', comment='parser')
+# Para acceder a los datos del archivo CSV, necesitamos una función read_csv() que recupere los datos en forma de Dataframe.
+# index_col: Si no hay ninguno, no se muestran números de índice junto con los registros.
+syntax_table = pd.read_csv("ProyectoParcial\sys.csv", index_col=0)
+# Cree un gráfico creando una instancia de un nuevo objeto Graph o Digraph:
+# dot = graphviz.Digraph('round-table', comment='The Round Table')
+arbol = graphviz.Graph(comment="Arbol Generedo")
 
-syntax_table = pd.read_csv("ProyectoParcial\sysntax.csv", index_col=0)
-arbol = graphviz.Graph(comment = "Arbol Generedo")
 
-
-
-## Recorrer el stack
+# Recorrer el stack
 def print_stack():
     print("\nStack:")
     for e in stack:
+        # print("Este es el symbol en stack")
         print(e.symbol, end=" ")
+        # print("Este es el is_terminal en stack")
+        # print(e.is_terminal, end=" ")
     print()
 
 
-## Recorrer el tokens
+# Recorrer el tokens
 def print_input():
     print("\ntokens:")
     for t in tokens:
-        print(t["type"],end=" ")
+        print(t["type"], end=" ")
     print()
 
 
-## Reemplazar valores /token_type - > Es el primer elemento de tu input
+# Reemplazar valores /token_type - > Es el primer elemento de tu input
 def update_stack(stack, token_type):
     production = syntax_table.loc[stack[0].symbol][token_type]
 
-# En que paso en encuentra
+    # lo que se envia
+    #print("Valores de ingreso a la tabla")
+    #print(stack[0].symbol, token_type)
+    # En que paso en encuentra
     print("\nproceso")
     print(production)
     print()
 
-#   Error Sintactico
-    if(pd.isna(production)):
+    #   Error Sintactico
+    if (pd.isna(production)):
         print("Error.....")
         sys.exit()
 
-## Empeamos la construccion del Grama
+# Aqui pasar de E -> xy a xy
     elementos = production.split(" ")
+    #print("Soy el elemento")
+    #print(elementos)
+    father = elementos[0]
+    #print("Soy el padre")
+    #print(father)
+    # Que es Dot
+    # print(dot.source)
+    if (elementos[0] in dot.source):
+        #print("Como llegue aqui")
+        # print(dot.source)
+        position = dot.source.rfind(elementos[0])
+        #print("Como llegue position")
+        # print(position)
+        value = dot.source[position]
+        #print("Como llegue value")
+        # print(value)
+        #print("Como llegue value  + algo")
 
-    #Sera  el primer nodo del arbol
-    sourc = elementos[0]
-
-    ## se empieza el grafo
-
-    if(elementos[0] in arbol.source):
-        aux = arbol.source[arbol.source.rfind(elementos[0])]
-        i = 0
-        while(True):
-            print(arbol.source.rfind(elementos[0])+i)
-            print(len(arbol.source))
-            if(arbol.source[arbol.source.rfind(elementos[0])+i] ==' '):
-                    break
-            else:
-                aux = aux + arbol.source[arbol.source.rfind(elementos[0])+i]
-                i = i + 1
-        sourc = aux.strip()
-
-## Aqui pasar de E -> xy a xy
-
+    # elminina los valores
     elementos.pop(0)
     elementos.pop(0)
-# eliminar de la pila
-    father =  stack.pop(0)
+    # eliminar de la pila
+    stack.pop(0)
+# -----------------------------------------------------------------------------
+    # eliminar de la pila
+    # father =  stack.pop(0)
     # IMPLEMENTA UNA FUNCION QUE ME RETORNE UNA INSTACIA A NODE PARSE A PARTIR DE FATHER.ID
-    ## SERA LA VARIABLE NODE_FATHER
+    # SERA LA VARIABLE NODE_FATHER
 
-## Si hay un espacio se ignora pero ese valor debe consederarse en el grafico
     if elementos[0] == "''":  # nulo
-        for f in range(len(elementos)):
-            if(elementos[f] in arbol.source):
-                key = str(len(arbol.source))
-                arbol.node(elementos[f]+key, "𝓔")   # nodo del arbol
-                arbol.edge(sourc, elementos[f]+key)  #Coneccion de nodo
-
-            if(elementos[f] not in arbol.source): ## vemos si el nodo pertenece a su padre
-                arbol.node(elementos[f], "𝓔")           ## Es el nodo del abol
-                arbol.edge(sourc, elementos[f])       ## es la coleccion de nodos        
         return
 
-#Vamos a insertar el elemetos a stack pero primero a E
-    
-    for i in range(len(elementos)-1, -1, -1):
+# Vamos a insertar el elemetos a stack pero primero a E
+
+    for i in range(len(elementos) - 1, -1, -1):
         symbol = node_stack(elementos[i], not elementos[i].isupper())
         stack.insert(0, symbol)
-        # node_father -> BUSCAR 
-        node_primario = node_parser(symbol,None,[],node_father,None)
-        node_father.children.append(node_primario)    
-## se va a generar los nodos y sus relaciones
+        #print("Que es symbol -> solo un lemento")
+        # print(elementos[i])
+        #print("Que es stack aqui")
+        # print(elementos[i].isupper())
+    print_stack()
 
-    for f in range(len(elementos)):
-        if(elementos[f] in arbol.source):
-            key = str(len(arbol.source))
-            arbol.node(elementos[f]+key, elementos[f])
-            arbol.edge(sourc, elementos[f]+key)
+  # creamos y vinculamos el nodo padre al nodo hijo
+    for i in range(0, len(elementos)):
+        key = str(len(dot.source))
+        if (elementos[i] in dot.source):
 
-        if(elementos[f] not in arbol.source):
-            arbol.node(elementos[f], elementos[f])
-            arbol.edge(sourc, elementos[f])
+            dot.node(elementos[i], elementos[i])
+            #print("------------PPP")
+            #print(elementos[i])
+            #print("------------EEE")
+            #print(elementos[i])
+
+            if (father == elementos[i]):
+                # Equita que sea redundante
+                dot.edge(father, elementos[i] + key)
+                # Aqui me impirmio ID -> despues de T
+                #print("------------YYY")
+                #print(father)
+                #print("------------AAA")
+                #print(elementos[i]+ key)
 
 
-# Nodo principal -> Se encarga de mover 
+          #  print("IF father -> "+father+" Se conecta con (elementos[i]+key) -> "+ (elementos[i]+key))
+            if (father != elementos[i]):
+                # los identifica a cada uno
+                dot.edge(father, elementos[i])
+                #print("------------XXX")
+                #print(father)
+                #print("------------ZZZ")
+                #print(elementos[i])
+
+          #  print("IF father -> "+father+" Se conecta con elementos[i] -> "+elementos[i])
+        else:
+          #  print("ELSE father -> " + father + " Se conecta con elementos[i] -> " + elementos[i])
+
+
+
+            if (father != elementos[i]):
+                dot.edge(father, elementos[i])
+                # Es aqui la modifocacion ------------------- ayuda
+                #print("------------OOO")
+                #print(father)
+                #print("------------GGG")
+                #print(elementos[i] + key )
+
+    print_stack()
+
+# ------------------------------------------------------------------------------
+    # node_father -> BUSCAR
+    # node_primario = node_parser(symbol,None,[],node_father,None)
+    # node_father.children.append(node_primario)
+# se va a generar los nodos y sus relaciones
+
+
+# Nodo principal -> Se encarga de mover
 class node_stack:
-  def __init__(self, symbol, is_terminal):
-    global counter
-    self.id = counter 
-    self.symbol = symbol        # simbolo de la gramatica
-    self.is_terminal = is_terminal
-    counter += 1
 
-# Las Hojas 
+    def __init__(self, symbol, is_terminal):
+        # cada Stack -> tendra un id para identificarlo propiamente !!!
+        global counter
+        #print("Este el counter en node_stack")
+        # print(counter)
+        self.id = counter
+        self.symbol = symbol  # simbolo de la gramatica
+        self.is_terminal = is_terminal
+        counter += 1
+        #print("Este el symbol en node_stack")
+        # print(symbol)
+        #print("Este el is_terminal en node_stack")
+        # print(is_terminal)
+
+
+# Las Hojas
 class node_parser:
+
     def __init__(self, node_st, lexeme=None, children=[], father=None, line=None):
         self.node_st = node_st
         self.lexeme = lexeme
@@ -124,26 +286,22 @@ class node_parser:
         self.father = father
 
 
-#  Entrada para el Stark
-stack = [ ]
-symbol_1 = node_stack('$', True)
-symbol_2 = node_stack('PROGRAM', False)
+#  Entrada para el Stak
+stack = []
+symbol_1 = node_stack('$', True)  # numero 0 en stack
+symbol_2 = node_stack('PROGRAM', False)  # numero 1 en stack
 stack.insert(0, symbol_1)
 stack.insert(0, symbol_2)
-## Creaer el node -> raiz -> symbol_2
-raiz = node_parser(symbol_2)
-
-
+# ------------------------------------------------------------------
+# Creaer el node -> raiz -> symbol_2
+# raiz = node_parser(symbol_2)
+print("Este es el stack")
+print(stack)
 
 #  Entrada para el Input -> se modifica
-
-tokens = [
-                {'type':'id','lexema':'id', 'line': '1' },
-                {'type':'equal','lexema':'equal', 'line': '1' },
-                {'type':'true','lexema':'id', 'line': '1' },
-                {'type':'dotcomma','lexema':'dotcomma', 'line': '1' },
-                {'type':'$','lexema':'$', 'line': '1' }
-                ]
+# lexema -> tu como usuario has ingresado
+# type -> tipo (identificador)
+tokens =guardar_token
 # Empezamos las condicionales
 
 while True:
@@ -151,21 +309,28 @@ while True:
     print_stack()
     print_input()
     if stack[0].symbol == '$' and tokens[0]['type'] == '$':
-        print("Todo bien! \n")
+        print("Todo bien!")
         break
 
-    # Cuando Ambos son iguales osea Terminales
     if stack[0].is_terminal:
-        print("terminales ... \n")
+        # Cuando Ambos son iguales osea Terminales
+        print("Que haces")
+        print(stack[0].is_terminal)
+
+        print("terminales ...")
         if stack[0].symbol == tokens[0]['type']:
             stack.pop(0)
             tokens.pop(0)
         else:
             print("ERROR sintáctico")
             break
+
     # Cuando Son diferentes y se tiene que reemplazar segun la tabla
     else:
         update_stack(stack, tokens[0]['type'])
 
+# renderizar arbol
+dot.render('arbol.gv').replace('\\', '/')
+dot.render('arbol.gv', view=True)
 
-arbol.render(filename="arbol", format="png")
+print(dot.source)
