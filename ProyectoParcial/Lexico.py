@@ -100,7 +100,7 @@ def get_tokens(fp):
     if not tok:
       break      # No more input
     # print(tok)
-    print(tok.type, tok.value, tok.lineno, tok.lexpos)
+    #print(tok.type, tok.value, tok.lineno, tok.lexpos)
     guardar_token.append({'type': tok.type.lower(), 'lexeme': str(tok.value).lower(), 'line': tok.lineno})
 
   guardar_token.append({'type': '$', 'lexeme': '$', 'line': guardar_token[-1]['line']})
@@ -110,4 +110,4 @@ def get_tokens(fp):
 if __name__ == "__main__":
     fp = open("ProyectoParcial\practica.txt")
     tokens = get_tokens(fp)
-    print(tokens)
+    #print(tokens)
