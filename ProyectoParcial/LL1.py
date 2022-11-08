@@ -24,10 +24,7 @@ arbol = graphviz.Graph(comment="Arbol Generedo")
 def print_stack():
     print("\nStack:")
     for e in stack:
-        # print("Este es el symbol en stack")
         print(e.symbol, end=" ")
-        # print("Este es el is_terminal en stack")
-        # print(e.is_terminal, end=" ")
     print()
 
 
@@ -35,7 +32,7 @@ def print_stack():
 def print_input():
     print("\ntokens:")
     for t in tokens:
-        print(t["type"], end=" ")
+        print(t['type'], end=" ")
     print()
 
 # retorna un nodo del arbol sintáctico segun el id
@@ -102,9 +99,6 @@ def update_stack(stack, token_type):
     production = syntax_table.loc[stack[0].symbol][token_type]
 
     # lo que se envia
-    #print("Valores de ingreso a la tabla")
-    #print(stack[0].symbol, token_type)
-    # En que paso en encuentra
     #print("\nproceso")
     #print(production)
     #print()

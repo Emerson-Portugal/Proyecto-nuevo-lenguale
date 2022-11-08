@@ -1,2 +1,7 @@
-y = x;
-int z = 5;
+def suma(int a, int b, int c, int d){
+    int x = 4;
+    a = 0;
+    return x+a+b;
+}
+j = suma(4,5);
+
