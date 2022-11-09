@@ -1,7 +1,8 @@
-def suma(int a, int b, int c, int d){
+
+def suma(int y){
     int x = 4;
-    a = 0;
-    return x+a+b;
+    y = 5; 
+    return x;
 }
-j = suma(4,5);
+
 
