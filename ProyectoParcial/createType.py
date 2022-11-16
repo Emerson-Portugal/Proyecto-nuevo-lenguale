@@ -95,14 +95,16 @@ def buscarVariables(root):
       if encontrar(variable.lexeme):
         print("VARIABLE YA CREADA -> ERROR EN LINEA ->", variable.line)
       else:
-        print("VARIABLE CREADA -> EN LINEA ->", variable.line)
+        
         if nodo_tipo.children[0].lexeme == "bool" and  expresion == "BOOLEAN" :
+            print("VARIABLE CREADA -> EN LINEA ->", variable.line)
             tipo = "id"
             categoria = expresion
             padre = padre_asigando
             agregar(variable.lexeme, tipo, categoria, padre)
 
         elif nodo_tipo.children[0].lexeme == "int" and  expresion == "num": 
+            print("VARIABLE CREADA -> EN LINEA ->", variable.line)
             tipo = "id"
             categoria = expresion
             padre = padre_asigando
@@ -114,15 +116,22 @@ def buscarVariables(root):
 
 # Asigacion de variables-------------------------------------------------
 
-  if root.symbol.symbol == 'id' and root.father.symbol.symbol != 'DECLARATION' and root.father.symbol.symbol != 'FUNCTION':
+  if root.symbol.symbol == 'ASSIGN' and root.father.symbol.symbol != 'DECLARATION' and root.father.symbol.symbol != 'FUNCTION':
+    sub_valor = root.children[0]
+
+    valor = identificado(root)
     flag = False
     for i in array:
-      if i.lexema == root.lexeme:
-        print('VARIABLE EN USO -> EN LINEA ->', root.line )
+
+      if i.lexema == sub_valor.lexeme and i.categoria == valor:
+        print('VARIABLE EN USO -> EN LINEA ->', sub_valor.line )
+        flag = True
+      elif i.lexema == sub_valor.lexeme and i.categoria != valor:
+        print('ERROR DE ASIGACION -> EN LINEA ->', sub_valor.line )
         flag = True
 
     if not flag:
-      print('VARIABLE NO CREADA -> ERROR EN LINEA ->', root.line )
+        print('VARIABLE NO CREADA -> ERROR EN LINEA ->',  sub_valor.line )
       #return
 
 
