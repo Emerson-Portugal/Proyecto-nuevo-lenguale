@@ -65,6 +65,7 @@ def t_nuevalinea(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
+
    # A string containing ignored characters (tabs)
 t_ignore = ' \t'
 
@@ -84,30 +85,31 @@ lexer = lex.lex()
 
 def get_tokens(fp):
 
-  data = fp.read()
-  print(data)
-  fp.close()
+    data = fp.read()
+    print(data)
+    fp.close()
 
+    # Give the lexer some input
+    lexer.input(data)
+    # Guarda la informacion
 
-  # Give the lexer some input
-  lexer.input(data)
-  # Guarda la informacion
+    guardar_token = []
 
-  guardar_token = []
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break      # No more input
+        # print(tok)
+        #print(tok.type, tok.value, tok.lineno, tok.lexpos)
+        guardar_token.append({'type': tok.type.lower(), 'lexeme': str(
+            tok.value).lower(), 'line': tok.lineno})
 
-  while True:
-    tok = lexer.token()
-    if not tok:
-      break      # No more input
-    # print(tok)
-    #print(tok.type, tok.value, tok.lineno, tok.lexpos)
-    guardar_token.append({'type': tok.type.lower(), 'lexeme': str(tok.value).lower(), 'line': tok.lineno})
-
-  guardar_token.append({'type': '$', 'lexeme': '$', 'line': guardar_token[-1]['line']})
-  return guardar_token
+    guardar_token.append(
+        {'type': '$', 'lexeme': '$', 'line': guardar_token[-1]['line']})
+    return guardar_token
 
 
 if __name__ == "__main__":
     fp = open("ProyectoParcial\practica.txt")
     tokens = get_tokens(fp)
-    #print(tokens)
+    # print(tokens)

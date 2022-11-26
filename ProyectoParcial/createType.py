@@ -1,12 +1,15 @@
 import LL1
 import Lexico
 from collections import Counter
+from crearAsembly import convertir
+from crearAsembly import inicializarVar
 
 # debe imprimir nuestras varibles
 prueba = open("ProyectoParcial\practica.txt")
 tokens = Lexico.get_tokens(prueba)
 tokens.append(['$', None, None])
 root, node_list = LL1.principal(tokens)
+
 
 
 class analizador:
@@ -23,25 +26,52 @@ funcion = "def"
 
 
 def identificado(root):
+  # Aqui  se envia el papa  -> root
+  #  root.children -> saca los hijos de papa 
   stack = root.children
+  # creamos un array para  comparar 
   arr = []
+  valor = []
+  signo = []
   while len(stack) > 0:
+
+    if stack[0].symbol.symbol == "OPER":
+      signo.append(stack[0].children[0].lexeme)
+    # En este caso --- buscamos el papa donde se encuentra las variables
     if stack[0].symbol.symbol == 'TERM':
+      # agregamos e los hijos  al arrray creado
       arr.append(stack[0].children[0].symbol.symbol)
+      valor.append(stack[0].children[0].lexeme)
     temp = stack[0].children
     stack.pop(0)
+
+    # vamos a iterrar sobre los valores para insertalos en el stack 
     for i in temp:
       stack.insert(0, i)
   ty = arr[0]
+
   flag = False
   for j in arr:
     if j != ty:
       flag = True
       break
   if flag:
-    return "Error"
-  return ty
+    return "Error",valor, signo
+  return ty, valor, signo
 
+
+###------------------------------------------------------------------------------
+def pack(root):
+  stack = root.children
+  valor_id = []
+  while len(stack) > 0:
+    if stack[0].symbol.symbol == 'DECLARATION':
+      valor_id.append(stack[0].children[1].lexeme)
+    temp = stack[0].children
+    stack.pop(0)
+    for i in temp:
+      stack.insert(0, i) 
+  inicializarVar(valor_id)
 
 
 
@@ -62,9 +92,10 @@ def encontrar(lexema):
 
 def buscarVariables(root):
 
-# Creacion de funciones-------------------------------------------------
 
+# Creacion de funciones-------------------------------------------------
   if root.symbol.symbol == "FUNCTION":
+
     if encontrar(root.children[1].lexeme):
       print("FUNCION YA  CREADA -> ERROR EN LINEA ->", root.children[1].line)
     else:
@@ -78,14 +109,26 @@ def buscarVariables(root):
   if (root.symbol.symbol == 'DECLARATION'):
       variable = root.children[1]
       nodo_tipo = root.children[0]
-      expresion = identificado(root)     
+      expresion, valor, signo = identificado(root)
+
       aux = root
+
+
+      #inicializarVar(variable)
+
+      for i  in (array):
+          for j in range(len(valor)):
+            if i.lexema == valor[j]:
+              expresion = i.categoria
+
+
  
       # Vamos a comprovar si esta o no es una funcion------------------
       while aux.symbol.symbol != 'FUNCTION':
         if aux.father == None:
           break
         aux = aux.father
+
 
       padre_asigando = "LIBRE"
       ## tomanos el nombre de la funcion perteneciente 
@@ -108,6 +151,8 @@ def buscarVariables(root):
             tipo = "id"
             categoria = expresion
             padre = padre_asigando
+
+            convertir(variable, signo, valor)
             agregar(variable.lexeme, tipo, categoria, padre)
 
         else:
@@ -150,24 +195,16 @@ def buscarVariables(root):
           array.remove(j)
       count = count - 1
 
-
-
-
-
   for child in root.children:
     buscarVariables(child)
 
-        
+#pack(root)
 buscarVariables(root)
-
-
-
 
 
 
 for symbol in array:
   print(symbol.lexema, symbol.tipo, symbol.categoria, symbol.funcion_padre)
-
 
 
 
