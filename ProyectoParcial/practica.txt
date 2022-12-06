@@ -1,3 +1,5 @@
-int x = 7;
-int y = x + 8;
-int z = y;
+def suma (int n){
+    return p + 8;
+}
+int x = suma(5);
+int y = x + 5;

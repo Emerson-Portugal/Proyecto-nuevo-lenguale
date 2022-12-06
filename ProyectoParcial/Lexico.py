@@ -5,6 +5,7 @@ reserved = {
     'true': 'true',
     'false': 'false',
     'if': 'if',
+    'else': 'else',
     'return': 'return',
     'int': 'int',
     'bool': 'bool',
@@ -25,7 +26,7 @@ tokens = [
     'ini_llave',
     'fin_llave',
     'dotcomma',
-    'comma'
+    'comma',
 ] + list(reserved.values())
 
 # Regular expression rules for simple tokens
@@ -42,6 +43,7 @@ t_ini_llave = r'\{'
 t_fin_llave = r'\}'
 t_dotcomma = r'\;'
 t_comma = r'\,'
+
 
 
 # A regular expression rule with some action code

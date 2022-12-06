@@ -14,7 +14,7 @@ copia2 = []
 dot = graphviz.Digraph('round-table', comment='parser')
 # Para acceder a los datos del archivo CSV, necesitamos una función read_csv() que recupere los datos en forma de Dataframe.
 # index_col: Si no hay ninguno, no se muestran números de índice junto con los registros.
-syntax_table = pd.read_csv("ProyectoParcial\sys.csv", index_col=0)
+syntax_table = pd.read_csv("ProyectoParcial\pack.csv", index_col=0)
 # Cree un gráfico creando una instancia de un nuevo objeto Graph o Digraph:
 # dot = graphviz.Digraph('round-table', comment='The Round Table')
 arbol = graphviz.Graph(comment="Arbol Generedo")
